@@ -4,7 +4,8 @@ services:
   fpl-app:
     build: .
     depends_on:
-      - selenium
+      selenium:
+        condition: service_healthy # This tells it to wait for the healthcheck
     environment:
       - SE_EVENT_BUS_HOST=selenium
 
@@ -12,5 +13,10 @@ services:
     image: selenium/standalone-firefox:latest
     shm_size: 2g
     ports:
-      - "4447:4444" # Selenium Grid
-      - "7905:7900" # noVNC for viewing browser
+      - "4447:4444"
+      - "7905:7900"
+    healthcheck: # This new section checks if Selenium is ready
+      test: ["CMD", "curl", "-f", "http://localhost:4444/wd/hub/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
